@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>角色信息填写工具 v3.11</title>
+<title>角色信息填写工具 v3.12</title>
 <style>
 :root{
   color-scheme: light dark;
@@ -230,7 +230,8 @@ footer{color:var(--muted);font-size:12px;margin-top:16px}
       <h2>属性</h2>
       <div class="row" style="margin-bottom:8px">
         <label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" id="tglAutoTotal" checked> 自动总值（总值 = 初始 + 背景 + 成长 + 杂项）</label>
-        <span class="hint">关闭后可手动填写总值</span>
+        <label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" id="tglAutoBg" checked> 自动背景属性（背景前2项各 +1）</label>
+        <span class="hint">关闭后可手动填写总值/背景；特性与专长中的属性加值始终自动识别。</span>
       </div>
       <div class="grid g6" id="abilGrid"></div>
     </div>
@@ -574,7 +575,7 @@ footer{color:var(--muted);font-size:12px;margin-top:16px}
     </div>
   </section>
 
-  <footer>v3.11 · 数据仅保存在本地浏览器 localStorage / 下载文件。职业/子职业/魔法物品数据来自 5E 不全书（5echm.kagangtuya.top），含官方与第三方/模组内容。</footer>
+  <footer>v3.12 · 数据仅保存在本地浏览器 localStorage / 下载文件。职业/子职业/魔法物品数据来自 5E 不全书（5echm.kagangtuya.top），含官方与第三方/模组内容。</footer>
 </div>
 
 <div id="newCardModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:center;justify-content:center">
@@ -1026,7 +1027,7 @@ function blankCharacter(name) {
   }
   return {
     schema_version: "0.3",
-    meta: { template_name: "悲灵", template_version: "ver.", layout_version: "v1.0.12", ruleset: "5E2024", source_file: null, parsed_at: new Date().toISOString(), card_id: null, mode: null, autoTotal: true },
+    meta: { template_name: "悲灵", template_version: "ver.", layout_version: "v1.0.12", ruleset: "5E2024", source_file: null, parsed_at: new Date().toISOString(), card_id: null, mode: null, autoTotal: true, autoBg: true },
     identity: {
       character_name: name || "新角色", display_name: name || "新角色", player: "",
       race: { name: "", subrace: "" }, alignment: "", faith: "", age: "",
@@ -1109,7 +1110,42 @@ let current = 0;
 const $ = (id) => document.getElementById(id);
 function pb(c) { return Number(c.core_stats.proficiency_bonus) || 2; }
 
+const AB_NAME_MAP = { 力量: "str", 敏捷: "dex", 体质: "con", 智力: "int", 感知: "wis", 魅力: "cha" };
+const BG_ABILITY_FALLBACK = {
+  "贤者": "体质、智力、感知", "流浪儿": "敏捷、感知、魅力", "化外之民": "体质、感知、魅力",
+  "平民英雄": "力量、体质、感知", "商贩": "体质、智力、魅力", "间谍": "敏捷、智力、魅力",
+};
+function bgAbilitySpec(name) {
+  if (!name) return [];
+  let ability = "";
+  const b = (BG_DB || []).find((x) => x.name === name);
+  if (b && b.ability && !b.ability.startsWith("见") && b.ability.indexOf("=") < 0) ability = b.ability;
+  if (!ability) ability = BG_ABILITY_FALLBACK[name] || "";
+  if (!ability) return [];
+  return ability.split(/[、,，]/).map((s) => AB_NAME_MAP[s.trim()]).filter(Boolean);
+}
+function parseAbilityBonus(desc) {
+  const out = {};
+  if (!desc) return out;
+  const t = String(desc);
+  for (const [zh, key] of Object.entries(AB_NAME_MAP)) {
+    let m;
+    const re1 = new RegExp(zh + "(?:值|属性)(?:增加|提升|提高|变为|成为)?\\s*[＋+]?\\s*(\\d+)", "g");
+    while ((m = re1.exec(t))) out[key] = (out[key] || 0) + parseInt(m[1], 10);
+    const re2 = new RegExp(zh + "\\s*[＋+](\\d+)", "g");
+    while ((m = re2.exec(t))) out[key] = (out[key] || 0) + parseInt(m[1], 10);
+  }
+  return out;
+}
+
 function recalc(c) {
+  // 背景属性：自动按背景列表前两项各 +1（可用 tglAutoBg 关闭）
+  if (c.meta.autoBg !== false) {
+    const bgKeys = bgAbilitySpec(c.background.background_name);
+    for (const a of ABILS) {
+      c.abilities[a.key].background = (bgKeys && bgKeys.length && bgKeys.slice(0, 2).includes(a.key)) ? 1 : 0;
+    }
+  }
   if (c.meta.autoTotal !== false) {
     for (const a of ABILS) {
       const ab = c.abilities[a.key];
@@ -1120,6 +1156,20 @@ function recalc(c) {
   const mgAb = magicAbilityEffects(c);
   const mgSave = magicSaveEffects(c);
   const mgAtk = magicAttackBonus(c);
+  // 特性/专长中的属性加值（描述里识别“力量+1 / 力量值增加1”等）
+  const featAb = {};
+  const collectFeatAb = (arr) => {
+    (arr || []).forEach((f) => {
+      const b = parseAbilityBonus((f && (f.abilityBonus || f.description || f.desc)) || "");
+      for (const [k, v] of Object.entries(b)) featAb[k] = (featAb[k] || 0) + v;
+    });
+  };
+  collectFeatAb(c.features.class_features);
+  collectFeatAb(c.features.race_features);
+  collectFeatAb(c.features.subclass_features);
+  collectFeatAb(c.features.feats);
+  collectFeatAb(c.features.special_abilities);
+  collectFeatAb(c.features.fighting_style_feats);
   c._magicDefenses = magicDefenseEffects(c);
   c._magicAc = magicAcBonus(c);
   c._magicSpeed = magicSpeedBonus(c);
@@ -1132,7 +1182,8 @@ function recalc(c) {
   for (const a of ABILS) {
     const ab = c.abilities[a.key];
     if (!ab) continue;
-    ab.effective = Math.max(ab.total, mgAb.set[a.key] || 0) + (mgAb.bonus[a.key] || 0);
+    ab.featBonus = featAb[a.key] || 0;
+    ab.effective = Math.max(ab.total, mgAb.set[a.key] || 0) + (mgAb.bonus[a.key] || 0) + ab.featBonus;
     ab.modifier = modFor(ab.effective);
     ab.save.bonus = ab.modifier + (ab.save.proficient ? p : 0) + (Number(ab.save.misc) || 0) + (mgSave.all || 0) + (mgSave.per[a.key] || 0);
   }
@@ -1644,6 +1695,7 @@ function renderClassRows() {
 function renderAbilities() {
   const c = cur();
   const autoTotal = c.meta.autoTotal !== false;
+  const autoBg = c.meta.autoBg !== false;
   const box = $("abilGrid");
   box.innerHTML = "";
   for (const a of ABILS) {
@@ -1655,9 +1707,10 @@ function renderAbilities() {
       <div class="row" style="margin-bottom:4px">
         <label><span class="lab">总值${autoTotal ? "（自动）" : ""}</span><input type="number" data-path="abilities.${a.key}.total" value="${ab.total}" data-recalc="1" ${autoTotal ? "disabled" : ""}></label>
         <label><span class="lab">初始</span><input type="number" data-path="abilities.${a.key}.initial" value="${ab.initial}" style="max-width:60px"></label>
-        <label><span class="lab">背景</span><input type="number" data-path="abilities.${a.key}.background" value="${ab.background}" style="max-width:60px"></label>
+        <label><span class="lab">背景${autoBg ? "（自动）" : ""}</span><input type="number" data-path="abilities.${a.key}.background" value="${ab.background}" style="max-width:60px" ${autoBg ? "disabled" : ""}></label>
         <label><span class="lab">成长</span><input type="number" data-path="abilities.${a.key}.growth" value="${ab.growth}" style="max-width:60px"></label>
         <label><span class="lab">杂项</span><input type="number" data-path="abilities.${a.key}.misc" value="${ab.misc}" style="max-width:60px"></label>
+        <label><span class="lab">特性（自动）</span><input type="text" value="${ab.featBonus || 0}" style="max-width:60px" disabled></label>
       </div>
       <div class="saveline">
         <label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" data-path="abilities.${a.key}.save.proficient" data-check="1" ${ab.save.proficient ? "checked" : ""}> 豁免熟练</label>
@@ -2075,7 +2128,7 @@ function updateDiag() {
     return Array.isArray(v) ? v.length : "非数组(" + typeof v + ")";
   };
   d.textContent =
-    "v3.11 ｜ 当前角色：「" + (c.identity.character_name || "未命名") + "」 ｜ 法术数据：戏法 " + cnt("cantrips_known") +
+    "v3.12 ｜ 当前角色：「" + (c.identity.character_name || "未命名") + "」 ｜ 法术数据：戏法 " + cnt("cantrips_known") +
     " · 始终准备 " + cnt("always_known") + " · 准备 " + cnt("prepared") +
     (lastAddMsg ? " ｜ " + lastAddMsg : "");
 }
@@ -2092,6 +2145,7 @@ function renderAll() {
     $("tglAutoDc").checked = c.spellcasting.dcAuto !== false;
     $("rulesVersion").value = c.meta.ruleset || "5E2024";
     $("tglAutoTotal").checked = c.meta.autoTotal !== false;
+    $("tglAutoBg").checked = c.meta.autoBg !== false;
     $("tglHpFirstMax").checked = !!c.core_stats.hpFirstMax;
     document.querySelectorAll("[data-path]").forEach((el) => {
       const path = el.dataset.path;
@@ -2398,6 +2452,11 @@ $("rulesVersion").onchange = () => {
 });
 $("tglAutoTotal").onchange = () => {
   cur().meta.autoTotal = $("tglAutoTotal").checked;
+  recalc(cur());
+  renderAll();
+};
+$("tglAutoBg").onchange = () => {
+  cur().meta.autoBg = $("tglAutoBg").checked;
   recalc(cur());
   renderAll();
 };
