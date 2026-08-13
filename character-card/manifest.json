@@ -1,0 +1,16 @@
+{
+  "name": "冬日角色卡",
+  "version": "0.1.0",
+  "manifest_version": 1,
+  "description": "导入角色工具 JSON，绑定棋子、查看角色卡并同步血量。",
+  "icon": "/dnd-character-tool/character-card/icon.svg",
+  "author": "alsece888",
+  "homepage_url": "https://alsece888.github.io/dnd-character-tool/",
+  "action": {
+    "title": "冬日角色卡",
+    "icon": "/dnd-character-tool/character-card/icon.svg",
+    "popover": "/dnd-character-tool/character-card/",
+    "height": 700,
+    "width": 400
+  }
+}
