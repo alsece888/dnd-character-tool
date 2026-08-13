@@ -14,13 +14,13 @@
 
 角色数据仅保存在当前浏览器的本地存储中，换浏览器或清除缓存会丢失；建议定期到「JSON」页导出备份。
 
-## DND跑团角色卡插件（Owlbear Rodeo 扩展）
+## MALO-跑团角色卡插件（Owlbear Rodeo 扩展）
 
 配套的 Owlbear Rodeo 扩展，把角色卡带进跑团房间：
 
 - 安装链接：`https://alsece888.github.io/dnd-character-tool/character-card/manifest.json`
 - 使用方法：
   1. 在 Owlbear Rodeo 个人资料页点「Add Extension」，粘贴上面的 manifest 链接；
-  2. 在房间设置里启用「DND跑团角色卡插件」扩展；
+  2. 在房间设置里启用「MALO-跑团角色卡插件」扩展；
   3. 打开扩展面板，导入「角色信息填写工具」导出的角色 JSON；
   4. 场景中右键棋子 →「绑定角色」→ 查看角色卡、调整血量，棋子头顶会显示 HP 标签，全房间同步。
