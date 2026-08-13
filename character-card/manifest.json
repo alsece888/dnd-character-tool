@@ -1,6 +1,6 @@
 {
   "name": "MALO-跑团角色卡插件",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "manifest_version": 1,
   "description": "导入角色工具 JSON，绑定棋子、查看角色卡并同步血量。",
   "icon": "/dnd-character-tool/character-card/icon.svg",
