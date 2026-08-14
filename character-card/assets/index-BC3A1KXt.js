@@ -79,11 +79,13 @@
         <div class="vital-main">
           <div class="vital-head">
             <span class="vital-title">生命值</span>
-            ${d>0?`<span class="temp-chip">临时 +${f(d)}</span>`:'<span class="temp-chip empty">临时 +0</span>'}
+            <span class="vital-meta">
+              ${d>0?`<span class="temp-chip">临时 +${f(d)}</span>`:""}
+              <span class="hp-readout">${f(l)} / ${f(r)}</span>
+            </span>
           </div>
           <div class="hp-bar ${y}">
             <div class="hp-fill" style="width:${h.toFixed(1)}%"></div>
-            <span class="hp-bar-text">${f(l)}/${f(r)}</span>
           </div>
           <div class="hp-controls">
             <button class="hpbtn" data-hp="-10">-10</button>
@@ -312,7 +314,7 @@ Street Justice`,description:`属性值提升Ability Score Increase。你的力�
       <span class="hint">点击本面板后按 W/A/S/D 或方向键移动，Shift ×2</span>
     </div>`,(u=document.querySelector("#wasd-select"))==null||u.addEventListener("change",d=>{d.target.value&&(_t(d.target.value),C("已设置 WASD 控制","SUCCESS")),Je()}),(l=document.querySelector("#btn-wasd-clear"))==null||l.addEventListener("click",()=>{_t(null),Je(),C("已清除 WASD 控制","SUCCESS")});const a=document.querySelector("#wasd-speed");a==null||a.addEventListener("input",d=>{const h=Number(d.target.value);qi(h);const y=document.querySelector("#wasd-speed-val");y&&(y.textContent=`${h} 格`)}),a==null||a.addEventListener("change",d=>{d.target.blur()}),(r=document.querySelector("#btn-wasd-test"))==null||r.addEventListener("click",async()=>{const d=Vt();if(!d){we("未选择控制棋子",!0);return}we("移动中…",!1);const h=await ns(d,Ae,0);h.ok?we(`已移动 ${Ae} 格`,!1):(we(`移动失败：${h.msg}`,!0),C(`移动失败：${h.msg}`,"ERROR"))})}async function Bn(t){const e=D==="view"?U?[U]:[]:Ot(P);if(!e.length){C("该角色未绑定任何棋子，无法保存血量","WARNING");return}await m.scene.items.updateItems(e,n=>{for(const s of n){const i=s.metadata[S];i.hp={current:Math.max(0,Number(t.current??i.hp.current)||0),max:Math.max(0,Number(t.max??i.hp.max)||0),temp:Math.max(0,Number(t.temp??i.hp.temp)||0)},i.updatedAt=new Date().toISOString()}})}async function ji(){const t=es();if(!t)return;const e=Ot(j(t));if(!e.length){C("该角色未绑定棋子","INFO");return}await m.scene.items.updateItems(e,n=>{var s;for(const i of n){const a=(s=i.metadata[S])==null?void 0:s.hp,o=Yn(t);a&&(o.hp={current:a.current??o.hp.current,max:a.max??o.hp.max,temp:a.temp??o.hp.temp}),i.metadata[S]=o}}),C("已同步角色数据","SUCCESS")}function Ki(){var e;nn.innerHTML=`
     <div class="app">
-      <div class="top"><span class="logo">MALO-跑团角色卡插件</span><span class="ver">v0.3.0</span></div>
+      <div class="top"><span class="logo">MALO-跑团角色卡插件</span><span class="ver">v0.3.1</span></div>
       <div class="imports">
         <label class="btn primary">导入 JSON<input id="file" type="file" accept=".json,application/json" hidden /></label>
         <button class="btn" id="btn-paste">粘贴 JSON</button>
