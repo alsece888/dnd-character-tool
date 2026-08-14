@@ -24,39 +24,28 @@ html{zoom:var(--panel-zoom, 1)}
   border-radius:10px;
   box-shadow:0 6px 20px rgba(0,0,0,0.55),0 0 14px rgba(242,202,80,0.10);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  padding:6px 10px;
+  padding:4px 7px;
   display:flex;flex-direction:column;gap:2px;
 }
-.card .row{display:flex;align-items:center;gap:6px}
+.card .row{display:flex;align-items:center;gap:4px}
 
 /* 2026-05-10c — name row above the stat banner. Resolves to
    CC name → bestiary monster name → OBR item name (in that order
    of priority). Center-aligned; truncates with ellipsis when the
    name is too long for the popover width. */
 .name-row{
-  height:14px;
-  font-size:11.5px;font-weight:700;
+  height:11px;
+  font-size:10px;font-weight:700;
   color:#f2ca50;
   text-align:center;
-  letter-spacing:0.35px;
+  letter-spacing:0.2px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   padding:0 4px;
   text-shadow:0 1px 3px rgba(0,0,0,0.75),0 0 8px rgba(242,202,80,0.25);
 }
 
-/* Drag grip — same affordance as bestiary info / cc-info popovers. */
-.drag-handle{
-  flex-shrink:0;
-  width:14px;height:30px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:grab;
-  color:rgba(242,202,80,0.35);
-  opacity:0.55;
-  touch-action:none;user-select:none;
-}
-.drag-handle:hover{opacity:1;color:#f2ca50}
-.drag-handle.is-dragging{cursor:grabbing;opacity:1;color:#f2ca50}
-.drag-handle svg{width:12px;height:18px;display:block;pointer-events:none}
+/* 面板已锚定到棋子头顶跟随移动，不再需要拖拽把手 */
+.drag-handle{display:none}
 
 /* 2026-05-11 — Reset button. Wipes the bubbles plugin's per-token
    cache via a LOCAL broadcast, forcing a full re-render. Used when
@@ -65,7 +54,7 @@ html{zoom:var(--panel-zoom, 1)}
    first thing the user reaches when they need it. */
 .reset-btn{
   flex-shrink:0;
-  width:24px;height:24px;
+  width:18px;height:18px;
   display:inline-flex;align-items:center;justify-content:center;
   background:transparent;
   border:1px solid rgba(242,202,80,0.30);
@@ -87,7 +76,7 @@ html{zoom:var(--panel-zoom, 1)}
   background:rgba(242,202,80,0.18);
   transform:rotate(180deg);
 }
-.reset-btn svg{width:13px;height:13px;display:block;pointer-events:none}
+.reset-btn svg{width:11px;height:11px;display:block;pointer-events:none}
 
 /* HP / Temp / AC banner — copied from bestiary-monster-info.html so
    the standalone bar visually matches the editor in the bestiary
@@ -102,18 +91,18 @@ html{zoom:var(--panel-zoom, 1)}
      15px tabular-nums = ~63px text + slash + 2×12px padding = 95px
      safe). Bumping the floor prevents truncation in the worst case
      and lets the temp/AC pills steal extra space when HP is small. */
-  min-width:96px;
+  min-width:74px;
   position:relative;
   isolation:isolate;
   overflow:hidden;
   display:flex;align-items:center;justify-content:center;gap:2px;
-  min-height:32px;
-  padding:0 10px;
+  min-height:21px;
+  padding:0 6px;
   background:linear-gradient(135deg,#2b2416,#3a3120);
   border:1px solid rgba(212,175,55,0.65);
-  border-radius:16px;
+  border-radius:12px;
   color:#fff;
-  font-weight:800;font-size:14px;
+  font-weight:800;font-size:11.5px;
   box-shadow:0 2px 8px rgba(224,102,91,0.28),0 0 0 1px rgba(0,0,0,0.28) inset;
   letter-spacing:0.3px;
 }
@@ -128,27 +117,27 @@ html{zoom:var(--panel-zoom, 1)}
   pointer-events:none;
 }
 .hp-pill > *{position:relative;z-index:1}
-.hp-pill .slash{font-size:13px;font-weight:400;opacity:0.55;margin:0 1px}
+.hp-pill .slash{font-size:11px;font-weight:400;opacity:0.55;margin:0 1px}
 
 .temp-pill{
   flex-shrink:0;
-  width:32px;height:32px;
+  width:21px;height:21px;
   border-radius:50%;
   background:linear-gradient(135deg,#dae2ff,#8ea0c8);
   border:1px solid rgba(190,198,227,0.8);
   display:flex;align-items:center;justify-content:center;
-  color:#131b30;font-weight:800;font-size:12px;
+  color:#131b30;font-weight:800;font-size:9.5px;
   box-shadow:0 2px 6px rgba(190,198,227,0.28),0 0 0 1px rgba(0,0,0,0.18) inset;
 }
 .ac-pill{
   flex-shrink:0;
-  width:34px;height:38px;
+  width:24px;height:27px;
   background:linear-gradient(135deg,#f2ca50,#d4af37);
   border:1px solid rgba(242,202,80,0.8);
   clip-path:polygon(0% 8%,100% 8%,100% 60%,50% 100%,0% 60%);
   display:flex;align-items:center;justify-content:center;
-  color:#241a00;font-weight:800;font-size:13px;
-  padding-bottom:8px;
+  color:#241a00;font-weight:800;font-size:10.5px;
+  padding-bottom:5px;
   filter:drop-shadow(0 2px 4px rgba(242,202,80,0.45));
 }
 /* Stat cells now fill the parent pill so clicking ANYWHERE inside
@@ -185,7 +174,7 @@ html{zoom:var(--panel-zoom, 1)}
    `com.obr-suite/hp-bar-pin-changed` LOCAL broadcast. */
 .panel-pin-btn{
   flex-shrink:0;
-  width:24px;height:24px;
+  width:18px;height:18px;
   display:inline-flex;align-items:center;justify-content:center;
   background:transparent;
   border:1px solid rgba(242,202,80,0.30);
@@ -205,7 +194,7 @@ html{zoom:var(--panel-zoom, 1)}
   background:rgba(242,202,80,0.16);
   transform:rotate(35deg);
 }
-.panel-pin-btn svg{width:12px;height:12px;display:block;pointer-events:none}
+.panel-pin-btn svg{width:10px;height:10px;display:block;pointer-events:none}
 
 /* DM-only lock button — same affordance as bestiary monster-info /
    cc-info popovers. Toggles `metadata.locked` on the bubbles meta
@@ -214,7 +203,7 @@ html{zoom:var(--panel-zoom, 1)}
    the JS body class). */
 .stat-lock{
   flex-shrink:0;
-  width:30px;height:30px;
+  width:21px;height:21px;
   display:flex;align-items:center;justify-content:center;
   background:rgba(190,24,24,0.38);
   border:1px solid rgba(248,113,113,0.95);
@@ -233,7 +222,7 @@ html{zoom:var(--panel-zoom, 1)}
   box-shadow:none;
 }
 body.is-player .stat-lock{display:none}
-.stat-lock svg{width:14px;height:14px}
+.stat-lock svg{width:11px;height:11px}
 </style>
   <script type="module" crossorigin src="./assets/hp-bar-I3WQSCES.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-CV0ltsny.js">
