@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>角色信息填写工具 v3.19</title>
+<title>角色信息填写工具 v3.20</title>
 <style>
 :root{
   color-scheme: light dark;
@@ -575,7 +575,7 @@ footer{color:var(--muted);font-size:12px;margin-top:16px}
     </div>
   </section>
 
-  <footer>v3.19 · 数据仅保存在本地浏览器 localStorage / 下载文件。职业/子职业/魔法物品数据来自 5E 不全书（5echm.kagangtuya.top），含官方与第三方/模组内容。</footer>
+  <footer>v3.20 · 数据仅保存在本地浏览器 localStorage / 下载文件。职业/子职业/魔法物品数据来自 5E 不全书（5echm.kagangtuya.top），含官方与第三方/模组内容。</footer>
 </div>
 
 <div id="newCardModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:center;justify-content:center">
@@ -2372,7 +2372,7 @@ function updateDiag() {
     return Array.isArray(v) ? v.length : "非数组(" + typeof v + ")";
   };
   d.textContent =
-    "v3.19 ｜ 当前角色：「" + (c.identity.character_name || "未命名") + "」 ｜ 法术数据：戏法 " + cnt("cantrips_known") +
+    "v3.20 ｜ 当前角色：「" + (c.identity.character_name || "未命名") + "」 ｜ 法术数据：戏法 " + cnt("cantrips_known") +
     " · 始终准备 " + cnt("always_known") + " · 准备 " + cnt("prepared") +
     (lastAddMsg ? " ｜ " + lastAddMsg : "");
 }
